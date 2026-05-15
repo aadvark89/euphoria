@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ETH Stability — Tap Trading Risk Dashboard</title>
+  <meta name="description" content="Historical ETH volatility analysis for Euphoria Finance tap trading. Find the safest betting windows with live AI risk assessment." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="grid-bg" aria-hidden="true"></div>
+  <div class="noise" aria-hidden="true"></div>
+
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="logo">
+        <span class="logo-mark">◈</span>
+        <span class="logo-text">ETH<em>stability</em></span>
+      </div>
+      <nav class="header-nav">
+        <a href="#live-risk" class="nav-link">Live risk</a>
+        <a href="#heatmap" class="nav-link">Heatmap</a>
+        <a href="#windows" class="nav-link">Windows</a>
+        <a href="https://docs.euphoria.finance/" target="_blank" rel="noopener" class="nav-link nav-ext">Euphoria ↗</a>
+        <div class="utc-clock" id="utc-clock-header">--:-- UTC</div>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="hero-inner">
+        <div class="hero-tag">6 years · Garman-Klass estimator · 2018–2024</div>
+        <h1 class="hero-title">
+          Find the<br/>
+          <span class="accent-text">straight line</span><br/>
+          in the noise
+        </h1>
+        <p class="hero-sub">
+          Historical ETH volatility analysis for Euphoria tap trading.<br />
+          Know exactly when price moves like a ruler — and when it doesn't.
+        </p>
+        <div class="hero-metrics">
+          <div class="hm-card">
+            <div class="hm-val safe-val">02:00–06:00 UTC</div>
+            <div class="hm-label">Safest betting window</div>
+          </div>
+          <div class="hm-card">
+            <div class="hm-val safe-val">−65%</div>
+            <div class="hm-label">Less volatile vs peak</div>
+          </div>
+          <div class="hm-card">
+            <div class="hm-val danger-val">13:00–17:00 UTC</div>
+            <div class="hm-label">Highest risk — avoid</div>
+          </div>
+        </div>
+        <a href="#live-risk" class="hero-cta">Check current risk ↓</a>
+      </div>
+      <div class="hero-chart-area">
+        <canvas id="hero-chart" aria-label="Animated ETH hourly stability scores"></canvas>
+      </div>
+    </section>
+
+    <section class="section" id="live-risk">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-tag">Live assessment</span>
+          <h2 class="section-title">Is now a good time to bet?</h2>
+        </div>
+
+        <div class="risk-dashboard">
+          <div class="risk-main-card" id="risk-main-card">
+            <div class="risk-top">
+              <div class="risk-verdict-area">
+                <div class="pulse-wrap">
+                  <div class="pulse-ring" id="pulse-ring"></div>
+                  <div class="pulse-dot" id="pulse-dot"></div>
+                </div>
+                <div>
+                  <div class="risk-verdict-label" id="risk-verdict-label">Checking conditions...</div>
+                  <div class="risk-verdict-sub" id="risk-verdict-sub">UTC 00:00 · — session</div>
+                </div>
+              </div>
+              <div class="risk-controls">
+                <div class="risk-badge" id="risk-badge">—</div>
+                <button class="refresh-btn" id="refresh-btn" onclick="runRiskAssessment()">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+                  Refresh
+                </button>
+              </div>
+            </div>
+
+            <div class="meters-grid">
+              <div class="meter-item">
+                <div class="meter-header">
+                  <span>Hourly volatility</span>
+                  <span class="mval" id="vol-val">—</span>
+                </div>
+                <div class="meter-track"><div class="meter-fill" id="vol-fill"></div></div>
+                <div class="meter-note">Garman-Klass historical baseline</div>
+              </div>
+              <div class="meter-item">
+                <div class="meter-header">
+                  <span>Session activity</span>
+                  <span class="mval" id="session-val">—</span>
+                </div>
+                <div class="meter-track"><div class="meter-fill" id="session-fill"></div></div>
+                <div class="meter-note">US / EU / Asia overlap</div>
+              </div>
+              <div class="meter-item">
+                <div class="meter-header">
+                  <span>Funding pressure</span>
+                  <span class="mval" id="funding-val">—</span>
+                </div>
+                <div class="meter-track"><div class="meter-fill" id="funding-fill"></div></div>
+                <div class="meter-note">Settles 00:00, 08:00, 16:00 UTC</div>
+              </div>
+              <div class="meter-item">
+                <div class="meter-header">
+                  <span>Macro event risk</span>
+                  <span class="mval" id="macro-val">—</span>
+                </div>
+                <div class="meter-track"><div class="meter-fill" id="macro-fill"></div></div>
+                <div class="meter-note">US/EU data release windows</div>
+              </div>
+            </div>
+
+            <div class="composite-row">
+              <span class="composite-label">Composite risk</span>
+              <div class="composite-track">
+                <div class="composite-fill" id="composite-fill"></div>
+              </div>
+              <span class="composite-val" id="composite-val">—/100</span>
+            </div>
+          </div>
+
+          <div class="ai-side">
+            <div class="ai-card">
+              <div class="ai-card-header">
+                <span class="ai-tag">◈ AI analysis</span>
+                <span class="ai-model">claude-sonnet-4</span>
+              </div>
+              <div class="ai-body" id="ai-body">
+                <p class="ai-placeholder">Hit refresh to get a live AI read on current market conditions for tap trading.</p>
+              </div>
+            </div>
+
+            <div class="tz-card">
+              <label class="tz-label" for="tz-select">Your timezone</label>
+              <select id="tz-select" class="tz-select" onchange="updateTZ()">
+                <option value="0">UTC +0 (London)</option>
+                <option value="5.5">UTC +5:30 (IST)</option>
+                <option value="7" selected>UTC +7 (WIB / Jakarta)</option>
+                <option value="8">UTC +8 (SGT / HKT)</option>
+                <option value="9">UTC +9 (JST / KST)</option>
+                <option value="-5">UTC −5 (EST)</option>
+                <option value="-8">UTC −8 (PST)</option>
+              </select>
+              <div class="local-window-label">Prime window in your time</div>
+              <div class="local-window-val" id="local-window-val">—</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section-alt" id="heatmap">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-tag">Historical data</span>
+          <h2 class="section-title">Volatility heatmap</h2>
+          <p class="section-sub">ETH Garman-Klass volatility by UTC hour and day · 2018–2024 average</p>
+        </div>
+        <div class="heatmap-card">
+          <div class="hm-hour-labels" id="hm-hour-labels"></div>
+          <div class="hm-rows" id="hm-rows"></div>
+          <div class="hm-legend">
+            <span class="hl-item"><span class="hl-sw hl-low"></span>Very low</span>
+            <span class="hl-item"><span class="hl-sw hl-mid"></span>Moderate</span>
+            <span class="hl-item"><span class="hl-sw hl-high"></span>High</span>
+            <span class="hl-note">Amberdata + academic research (GK estimator, 5-min sampling)</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="profile">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-tag">24h profile</span>
+          <h2 class="section-title">Average hourly volatility</h2>
+          <p class="section-sub">Multi-year average Garman-Klass volatility for each UTC hour</p>
+        </div>
+        <div class="chart-card">
+          <div style="position:relative;width:100%;height:280px;">
+            <canvas id="vol-bar-chart" role="img" aria-label="Bar chart of ETH hourly vol by UTC hour">Lowest 02-06 UTC (~0.031%). Highest 13-17 UTC (~0.089%).</canvas>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section-alt" id="stability-section">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-tag">Tap trading score</span>
+          <h2 class="section-title">Straight-line stability score</h2>
+          <p class="section-sub">100 = perfect for flat bets · Below 35 = avoid · Real-time current hour highlighted</p>
+        </div>
+        <div class="chart-card chart-card-alt">
+          <div class="stability-legend-row">
+            <span class="sll safe-l">Safe (≥65)</span>
+            <span class="sll caution-l">Caution (35–64)</span>
+            <span class="sll danger-l">Avoid (&lt;35)</span>
+          </div>
+          <div style="position:relative;width:100%;height:260px;">
+            <canvas id="stability-chart" role="img" aria-label="Line chart of stability score by UTC hour">Peaks 03-05 UTC (~88/100). Minimum 14 UTC (~8/100).</canvas>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="windows">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-tag">Betting windows</span>
+          <h2 class="section-title">Ranked time windows</h2>
+          <p class="section-sub">All times UTC · Use the timezone selector to convert to your local time</p>
+        </div>
+        <div class="windows-cards" id="windows-cards"></div>
+        <div class="table-wrap">
+          <table class="windows-table">
+            <thead>
+              <tr>
+                <th>Window (UTC)</th>
+                <th>Avg vol%</th>
+                <th>vs mean</th>
+                <th>Drift</th>
+                <th>Score</th>
+                <th>Verdict</th>
+              </tr>
+            </thead>
+            <tbody id="windows-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section-alt" id="methodology">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-tag">Methodology</span>
+          <h2 class="section-title">How the analysis works</h2>
+        </div>
+        <div class="method-grid">
+          <div class="method-card">
+            <div class="method-num">01</div>
+            <h3 class="method-title">Garman-Klass estimator</h3>
+            <p>Uses high, low, open, and close for each hour — far more accurate than close-to-close returns. Captures intraday swings that directly impact short-duration tap bets.</p>
+          </div>
+          <div class="method-card">
+            <div class="method-num">02</div>
+            <h3 class="method-title">Session-layer overlay</h3>
+            <p>Three global sessions: Asia (00–08), Europe (07–16), US (13–22 UTC). Overlap periods spike both volume and vol. Risk scores weight session overlap explicitly.</p>
+          </div>
+          <div class="method-card">
+            <div class="method-num">03</div>
+            <h3 class="method-title">Funding rate pressure</h3>
+            <p>Perp futures settle funding at 00:00, 08:00, 16:00 UTC. Pre-settlement position adjustments create mini-squeezes — elevated directional risk in those hours.</p>
+          </div>
+          <div class="method-card">
+            <div class="method-num">04</div>
+            <h3 class="method-title">Composite scoring</h3>
+            <p>Final score = vol risk (40%) + session activity (30%) + macro timing (15%) + funding pressure (15%). Below 35 = safe for straight-line bets. Above 65 = avoid.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-logo">
+        <span class="logo-mark">◈</span>
+        <span>ETHstability</span>
+      </div>
+      <div class="footer-links">
+        <a href="https://docs.euphoria.finance/" target="_blank" rel="noopener">Euphoria Finance ↗</a>
+        <a href="#methodology">Methodology</a>
+      </div>
+      <p class="footer-disclaimer">Not financial advice. Historical patterns do not guarantee future results. For educational use with Euphoria Finance tap trading.</p>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
