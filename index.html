@@ -10,10 +10,6 @@
   <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <link rel="stylesheet" href="style.css" />
-  <script>
-    window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
-  </script>
-  <script defer src="/_vercel/insights/script.js"></script>
 </head>
 <body>
   <div class="grid-bg" aria-hidden="true"></div>
@@ -29,7 +25,7 @@
         <a href="#live-risk" class="nav-link">Live risk</a>
         <a href="#heatmap" class="nav-link">Heatmap</a>
         <a href="#windows" class="nav-link">Windows</a>
-        <a href="https://docs.euphoria.finance/" target="_blank" rel="noopener" class="nav-link nav-ext">Euphoria ↗</a>
+        <a href="https://euphoria.finance/@aadvark89" target="_blank" rel="noopener" class="nav-play-btn">Play now ↗</a>
         <div class="utc-clock" id="utc-clock-header">--:-- UTC</div>
       </nav>
     </div>
@@ -62,7 +58,12 @@
             <div class="hm-label">Highest risk — avoid</div>
           </div>
         </div>
-        <a href="#live-risk" class="hero-cta">Check current risk ↓</a>
+        <div class="hero-ctas">
+          <a href="#live-risk" class="hero-cta">Check current risk ↓</a>
+          <a href="https://euphoria.finance/@aadvark89" target="_blank" rel="noopener" class="hero-play-btn">
+            <span class="play-icon">▶</span> Play on Euphoria
+          </a>
+        </div>
       </div>
       <div class="hero-chart-area">
         <canvas id="hero-chart" aria-label="Animated ETH hourly stability scores"></canvas>
@@ -292,7 +293,8 @@
         <span>ETHstability</span>
       </div>
       <div class="footer-links">
-        <a href="https://docs.euphoria.finance/" target="_blank" rel="noopener">Euphoria Finance ↗</a>
+        <a href="https://euphoria.finance/@aadvark89" target="_blank" rel="noopener" class="footer-play-link">▶ Play on Euphoria ↗</a>
+        <a href="https://docs.euphoria.finance/" target="_blank" rel="noopener">Docs ↗</a>
         <a href="#methodology">Methodology</a>
       </div>
       <p class="footer-disclaimer">Not financial advice. Historical patterns do not guarantee future results. For educational use with Euphoria Finance tap trading.</p>

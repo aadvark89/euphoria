@@ -37,9 +37,10 @@ function scoreClass(score) {
 
 function volToColor(v) {
   const t = Math.min(1, Math.max(0, (v - 0.025) / (0.095 - 0.025)));
-  if (t < 0.35) return { r:29, g:92, b:62 };
-  if (t < 0.65) { const p=(t-0.35)/0.30; return { r:Math.round(29+p*95), g:Math.round(92-p*42), b:62-Math.round(p*52) }; }
-  const p=(t-0.65)/0.35; return { r:Math.round(124+p*3), g:Math.round(50-p*21), b:Math.round(10) };
+  // safe = deep green-teal, mid = amber-brown, danger = hot pink/red on maroon
+  if (t < 0.35) return { r:20, g:80, b:50 };
+  if (t < 0.65) { const p=(t-0.35)/0.30; return { r:Math.round(20+p*140), g:Math.round(80-p*50), b:Math.round(50-p*40) }; }
+  const p=(t-0.65)/0.35; return { r:Math.round(160+p*60), g:Math.round(30-p*10), b:Math.round(10+p*60) };
 }
 
 function rgbStr(v, a=1) {
@@ -219,13 +220,13 @@ function buildHeroChart() {
       labels,
       datasets: [{
         data: scores,
-        borderColor: 'rgba(0,212,170,0.7)',
-        backgroundColor: 'rgba(0,212,170,0.04)',
+        borderColor: 'rgba(255,110,180,0.7)',
+        backgroundColor: 'rgba(255,110,180,0.05)',
         borderWidth: 2,
         fill: true,
         tension: 0.45,
         pointRadius: 4,
-        pointBackgroundColor: scores.map(s => s>=65?'#4ade80':s>=35?'#fb923c':'#f87171'),
+        pointBackgroundColor: scores.map(s => s>=65?'#5edc8a':s>=35?'#ffab5e':'#ff6b80'),
         pointBorderColor: 'transparent',
       }]
     },
@@ -233,8 +234,8 @@ function buildHeroChart() {
       responsive: true, maintainAspectRatio: false,
       plugins: { legend: { display:false }, tooltip: { callbacks: { label: c => `Stability: ${c.raw}/100` } } },
       scales: {
-        x: { ticks:{ color:'#3d5166', font:{size:10}, maxRotation:0, autoSkip:true, maxTicksLimit:8 }, grid:{ color:'rgba(255,255,255,0.03)' }, border:{color:'rgba(255,255,255,0.06)'} },
-        y: { min:0, max:100, ticks:{ color:'#3d5166', font:{size:10} }, grid:{ color:'rgba(255,255,255,0.03)' }, border:{color:'rgba(255,255,255,0.06)'} }
+        x: { ticks:{ color:'#5a3a50', font:{size:10}, maxRotation:0, autoSkip:true, maxTicksLimit:8 }, grid:{ color:'rgba(255,100,180,0.04)' }, border:{color:'rgba(255,100,180,0.08)'} },
+        y: { min:0, max:100, ticks:{ color:'#5a3a50', font:{size:10} }, grid:{ color:'rgba(255,100,180,0.04)' }, border:{color:'rgba(255,100,180,0.08)'} }
       }
     }
   });
@@ -273,7 +274,7 @@ function buildBarChart() {
 
   const colors = HOURLY_VOL.map(v => {
     const t = (v-0.025)/(0.095-0.025);
-    return t<0.35?'rgba(74,222,128,0.7)':t<0.65?'rgba(251,146,60,0.7)':'rgba(248,113,113,0.7)';
+    return t<0.35?'rgba(94,220,138,0.65)':t<0.65?'rgba(255,171,94,0.65)':'rgba(255,107,128,0.7)';
   });
 
   new Chart(canvas, {
@@ -284,7 +285,7 @@ function buildBarChart() {
         label: 'Hourly vol %',
         data: HOURLY_VOL.map(v => parseFloat((v*100).toFixed(4))),
         backgroundColor: colors,
-        borderRadius: 3,
+        borderRadius: 4,
         borderWidth: 0,
       }]
     },
@@ -292,8 +293,8 @@ function buildBarChart() {
       responsive: true, maintainAspectRatio: false,
       plugins: { legend:{ display:false }, tooltip:{ callbacks:{ label: c => `Vol: ${c.raw}%` } } },
       scales: {
-        x: { ticks:{ color:'#3d5166', font:{size:10}, maxRotation:0, autoSkip:true, maxTicksLimit:12 }, grid:{ display:false }, border:{color:'rgba(255,255,255,0.06)'} },
-        y: { ticks:{ color:'#3d5166', font:{size:10}, callback: v=>`${v}%` }, grid:{ color:'rgba(255,255,255,0.04)' }, border:{color:'rgba(255,255,255,0.06)'} }
+        x: { ticks:{ color:'#5a3a50', font:{size:10}, maxRotation:0, autoSkip:true, maxTicksLimit:12 }, grid:{ display:false }, border:{color:'rgba(255,100,180,0.08)'} },
+        y: { ticks:{ color:'#5a3a50', font:{size:10}, callback: v=>`${v}%` }, grid:{ color:'rgba(255,100,180,0.06)' }, border:{color:'rgba(255,100,180,0.08)'} }
       }
     }
   });
@@ -308,8 +309,8 @@ function buildStabilityChart() {
   const currentH = now.getUTCHours();
 
   const pointColors = scores.map((s,i) => {
-    if (i===currentH) return '#00d4aa';
-    return s>=65?'#4ade80':s>=35?'#fb923c':'#f87171';
+    if (i===currentH) return '#ff6eb4';
+    return s>=65?'#5edc8a':s>=35?'#ffab5e':'#ff6b80';
   });
   const pointRadius = scores.map((_,i) => i===currentH ? 7 : 4);
 
@@ -324,8 +325,8 @@ function buildStabilityChart() {
         ctx.fillStyle = color;
         ctx.fillRect(left, y1, right-left, y2-y1);
       };
-      drawBand(65, 100, 'rgba(74,222,128,0.04)');
-      drawBand(0, 35, 'rgba(248,113,113,0.04)');
+      drawBand(65, 100, 'rgba(94,220,138,0.05)');
+      drawBand(0, 35, 'rgba(255,107,128,0.05)');
     }
   };
 
@@ -337,13 +338,13 @@ function buildStabilityChart() {
       datasets: [{
         label: 'Stability score',
         data: scores,
-        borderColor: '#7a8fa3',
+        borderColor: 'rgba(255,110,180,0.5)',
         borderWidth: 2,
         tension: 0.4,
         fill: false,
         pointRadius,
         pointBackgroundColor: pointColors,
-        pointBorderColor: scores.map((_,i) => i===currentH ? '#00d4aa' : 'transparent'),
+        pointBorderColor: scores.map((_,i) => i===currentH ? '#ff6eb4' : 'transparent'),
         pointBorderWidth: 2,
       }]
     },
@@ -354,8 +355,8 @@ function buildStabilityChart() {
         tooltip: { callbacks: { label: c => `Stability: ${c.raw}/100${c.dataIndex===currentH?' ← now':''}` } }
       },
       scales: {
-        x: { ticks:{ color:'#3d5166', font:{size:10}, maxRotation:0, autoSkip:true, maxTicksLimit:12 }, grid:{ color:'rgba(255,255,255,0.03)' }, border:{color:'rgba(255,255,255,0.06)'} },
-        y: { min:0, max:100, ticks:{ color:'#3d5166', font:{size:10} }, grid:{ color:'rgba(255,255,255,0.04)' }, border:{color:'rgba(255,255,255,0.06)'} }
+        x: { ticks:{ color:'#5a3a50', font:{size:10}, maxRotation:0, autoSkip:true, maxTicksLimit:12 }, grid:{ color:'rgba(255,100,180,0.04)' }, border:{color:'rgba(255,100,180,0.08)'} },
+        y: { min:0, max:100, ticks:{ color:'#5a3a50', font:{size:10} }, grid:{ color:'rgba(255,100,180,0.06)' }, border:{color:'rgba(255,100,180,0.08)'} }
       }
     }
   });
